@@ -65,9 +65,30 @@ VAC_LEFT, VAC_RIGHT, VAC_UP, VAC_DOWN = ord('<'), ord('>'), ord('^'), ord('v')
 VAC = [VAC_LEFT, VAC_RIGHT, VAC_UP, VAC_DOWN]
 GROUND = VAC + [SCAFFOLD]
 
+class ScaffoldPiece:
+    start: (int, int)
+    end: (int, int)
+    length: int
+    connected_start: ['ScaffoldPiece'] = []
+    connected_end: ['ScaffoldPiece'] = []
+
+    def __init__(self, start, end):
+        self.end = end
+        self.start = start
+        if start[0] == end[0]:
+            self.length = abs(end[1] - start[1])
+        elif start[1] == end[1]:
+            self.length = abs(end[0] - start[0])
+        else:
+            raise Exception("Start and End should be on same axis")
+
+
+
+
 
 class Map:
     _map: {(int, int): int} = dict()
+    _tree_map: {}
     cam_pos: (int, int) = (0, 0)
     pos: (int, int)
     __string_builder = String2DBuilder()
@@ -102,6 +123,9 @@ class Map:
         for pos in self._map:
             if self._map[pos] == SCAFFOLD:
                 self.scaffold_list.append(pos)
+
+    def make_tree_map(self):
+
 
     def paths(self):
         self.make_scaffold_list()

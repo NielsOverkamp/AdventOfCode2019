@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Callable, MutableSequence, MutableMapping, Iterator, Iterable
+from typing import Callable, MutableSequence, MutableMapping, Iterator, Iterable, Any
 
 from itertools import chain
 
@@ -127,8 +127,9 @@ def std_out(out, machine_id=None):
 class InOutBuffer:
     iter: Iterator
 
-    def __init__(self, _iter: Iterable = ()):
+    def __init__(self, _iter: Iterable = (), default: Any = None):
         self._iter = iter(_iter)
+        self.default = default
 
     def __iter__(self):
         return self
@@ -140,7 +141,7 @@ class InOutBuffer:
         try:
             return next(self._iter)
         except StopIteration:
-            return None
+            return self.default
 
     def add_all_to_buffer(self, new_iter: Iterable):
         self._iter = chain(self._iter, iter(new_iter))
@@ -174,6 +175,20 @@ def log_out_to_std_out(outputf):
             print("IntMachine {} sent Output: {}".format(machine_id, out))
 
     return _outputf
+
+
+def collect(n_arg: int, func: Callable):
+    args = []
+
+    def _func(val: int, machine_id=None):
+        args.append(val)
+        if len(args) >= n_arg:
+            func(*args, machine_id)
+            args.clear()
+      
+    return _func
+
+
 
 
 #
